@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
-    res.send("Bismillah Hir Rahman nir Raheem!")
+    res.send("Jai Shree Ram!")
 });
 
 app.use('/users', userRoutes);
