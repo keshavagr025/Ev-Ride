@@ -6,6 +6,7 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import 'remixicon/fonts/remixicon.css'
 import LocationSearchPanel from '../components/LocationSearchPanel'
+import LiveTracking from '../components/LiveTracking';
 import VehiclePanel from '../components/VehiclePanel'
 import ConfirmRide from '../components/ConfirmRide'
 import LookingForDriver from '../components/LookingForDriver'
@@ -192,8 +193,8 @@ const Home = () => {
   return (
     <div className='h-screen relative overflow-hidden'>
       <img className='w-20 mb-2 rounded-full absolute left-5 top-5' src={NovaRide_logo} alt="NovaRide_logo" />
-      <div>
-        <img className='h-screen w-full object-cover ' src={Home_Img} alt="" />
+      <div className='h-screen w-full'>
+         <LiveTracking />
       </div>
       <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
         <div className='h-[30%] p-5 bg-white relative'>

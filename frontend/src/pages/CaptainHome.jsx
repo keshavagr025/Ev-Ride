@@ -2,6 +2,7 @@ import logo from '../assets/logo.jpeg'
 import Home_Img from '../assets/Home_Img.webp'
 import React, { useState, useRef, useEffect, useContext } from 'react'
 import CaptainDetails from '../components/CaptainDetails'
+import LiveTracking from '../components/LiveTracking';
 import RidePopUp from '../components/RidePopUp'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -95,8 +96,8 @@ const CaptainHome = () => {
   return (
     <div className='h-screen'>
       <img className='w-20 mb-2 rounded-full absolute left-5 top-5' src={logo} alt="NovaRide_logo" />
-      <div className='h-3/5'>
-        <img className='h-full w-full object-cover' src={Home_Img} alt="map" />
+      <div className='h-screen w-full'>
+      <  LiveTracking/>
       </div>
       <div className='h-2/5 p-6'>
         <CaptainDetails />
