@@ -105,6 +105,7 @@ Team / Author
 
 Minor Project - EvRide
 
-Team Members: Khushal Kumar Sahu + Group
+Team Members: Khushal Kumar Sahu + Keshav Agrawal  + Khushi Agrawal
 
 AI & MERN Based EV Ride Optimization Project
+
