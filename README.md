@@ -77,3 +77,49 @@ This project is licensed under the [MIT License](LICENSE).
   - [GitHub](https://github.com/Aapush01)
   - [LinkedIn](https://www.linkedin.com/in/md-shahidafridi/)
   - Email: mdshahidafridia31@gmail.com
+
+
+
+
+
+pip install fastapi uvicorn scikit-learn pandas numpy geopy pydantic joblib openpyxl
+
+
+
+
+# Dataset se models train karo
+python dataset_integration.py
+
+uvicorn main_integrated:app --reload --port 8000
+
+# Browser mein kholo
+http://localhost:8000/docs
+
+# Ya test client run karo
+python test_client.py
+
+
+
+
+output like this 
+
+
+uvicorn main_enhanced:app --reload --port 8000
+```
+
+**Server Output:**
+```
+============================================================
+🚗 Starting EV Ride Booking Platform...
+============================================================
+✅ Enhanced Fare model loaded
+✅ Label encoders loaded
+✅ Server ready!
+============================================================
+```
+
+### **Step 5: Test the API**
+
+**Option 1: Browser**
+```
+http://localhost:8000/docs
