@@ -96,7 +96,7 @@ const CaptainHome = () => {
   return (
     <div className='h-screen'>
       <img className='w-20 mb-2 rounded-full absolute left-5 top-5' src={logo} alt="NovaRide_logo" />
-      <div className='h-screen w-full'>
+      <div className='h-screen w-200'>
       <  LiveTracking/>
       </div>
       <div className='h-2/5 p-6'>
