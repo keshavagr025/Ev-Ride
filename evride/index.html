@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ EV Ride - ML-Powered Green Ride Platform</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #22c55e;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--primary);
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "⚡";
+            font-size: 32px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--gray);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e2e8f0;
+            color: var(--dark);
+        }
+
+        /* Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 400px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .alert.show {
+            transform: translateX(0);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, var(--primary), #34d399);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, var(--danger), #f87171);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, var(--warning), #fbbf24);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, var(--secondary), #60a5fa);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            padding: 40px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h2 {
+            margin-bottom: 25px;
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Vehicle Grid */
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .vehicle-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .vehicle-card {
+            border: 2px solid var(--gray-light);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .vehicle-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .vehicle-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        }
+
+        .vehicle-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .vehicle-price {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Fare Display */
+        .fare-display {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            margin: 25px 0;
+            border: 2px solid #bae6fd;
+        }
+
+        .fare-amount {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .fare-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .breakdown-item {
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .breakdown-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .breakdown-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 18px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            width: 100%;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #16a34a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #2563eb);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8faff, #f0f9ff);
+            border-radius: 16px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(16, 185, 129, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Driver Card */
+        .driver-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .driver-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .driver-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            margin-right: 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .driver-details {
+            flex: 1;
+        }
+
+        .driver-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .driver-vehicle {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .driver-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .driver-rating {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .driver-battery {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Ride Items */
+        .ride-item {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .ride-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .ride-id {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 18px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-ongoing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-accepted {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        /* Map */
+        #map {
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 15px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ride tracking */
+        .ride-tracking {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 2px solid #bae6fd;
+        }
+
+        .tracking-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .tracking-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tracking-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .tracking-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .tracking-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        .tracking-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* ML Features Badge */
+        .ml-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .fare-breakdown, .tracking-info {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 16px 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">EV Ride Platform</div>
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('user')">
+                    🚗 User Dashboard
+                </button>
+                <button class="tab-btn" onclick="switchTab('driver')">
+                    👨‍✈️ Driver Portal
+                </button>
+                <button class="tab-btn" onclick="switchTab('admin')">📊 Admin Analytics</button>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertBox" class="alert"></div>
+
+        <!-- USER SECTION -->
+        <div id="userSection" class="section active">
+            <div class="main-content">
+                <!-- Map and Tracking Section -->
+                <div class="card">
+                    <h3>🗺️ Live Tracking Map <span class="ml-badge">AI OPTIMIZED</span></h3>
+                    <div id="map"></div>
+                    
+                    <!-- Ride Tracking -->
+                    <div id="rideTracking" class="ride-tracking" style="display: none;">
+                        <h4>🚗 Active Ride - AI Optimized Route</h4>
+                        <div class="tracking-info">
+                            <div class="tracking-item">
+                                <div class="tracking-label">Driver</div>
+                                <div id="trackingDriver" class="tracking-value">-</div>
+                            </div>
+                            <div class="tracking-item">
+                                <div class="tracking-label">ETA</div>
+                                <div id="trackingETA" class="tracking-value">- mins</div>
+                            </div>
+                            <div class="tracking-item">
+                                <div class="tracking-label">Distance</div>
+                                <div id="trackingDistance" class="tracking-value">- km</div>
+                            </div>
+                        </div>
+                        <div class="tracking-bar">
+                            <div id="trackingProgress" class="tracking-progress"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: #666; font-weight: 600;">
+                            <span>🚩 Pickup</span>
+                            <span>🏁 Dropoff</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Section -->
+                <div class="card">
+                    <h2>📍 Book Your EV Ride</h2>
+
+                    <div class="form-group">
+                        <label>🚩 Pickup Location</label>
+                        <input
+                            type="text"
+                            id="pickupAddress"
+                            placeholder="Enter pickup location"
+                            value="Connaught Place, Delhi"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>🏁 Drop Location</label>
+                        <input
+                            type="text"
+                            id="dropAddress"
+                            placeholder="Enter drop location"
+                            value="Karol Bagh, Delhi"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>🚗 Select EV Vehicle Type</label>
+                        <div class="vehicle-grid">
+                            <div class="vehicle-card selected" onclick="selectVehicle('sedan')">
+                                <div class="vehicle-icon">🚗</div>
+                                <div><strong>EV Sedan</strong></div>
+                                <div class="vehicle-price">₹12/km • 85% Efficient</div>
+                            </div>
+                            <div class="vehicle-card" onclick="selectVehicle('suv')">
+                                <div class="vehicle-icon">🚙</div>
+                                <div><strong>EV SUV</strong></div>
+                                <div class="vehicle-price">₹15/km • 80% Efficient</div>
+                            </div>
+                            <div class="vehicle-card" onclick="selectVehicle('hatchback')">
+                                <div class="vehicle-icon">🚕</div>
+                                <div><strong>EV Compact</strong></div>
+                                <div class="vehicle-price">₹10/km • 90% Efficient</div>
+                            </div>
+                            <div class="vehicle-card" onclick="selectVehicle('premium')">
+                                <div class="vehicle-icon">🏎️</div>
+                                <div><strong>EV Premium</strong></div>
+                                <div class="vehicle-price">₹20/km • Luxury Ride</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ML-Powered Fare Breakdown -->
+                    <div class="fare-display">
+                        <div style="font-size: 16px; margin-bottom: 10px; font-weight: 600;">
+                            🧠 ML-Powered Fare Estimate
+                        </div>
+                        <div class="fare-amount">₹<span id="fareAmount">78.50</span></div>
+                        
+                        <div class="fare-breakdown">
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Base Fare</div>
+                                <div class="breakdown-value">₹<span id="baseFare">65.00</span></div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Surge</div>
+                                <div class="breakdown-value"><span id="surgeMultiplier">1.2</span>x</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Demand</div>
+                                <div class="breakdown-value"><span id="demandFactor">1.1</span>x</div>
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; margin-top: 15px; opacity: 0.9; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>📏 Distance: <span id="estimatedDistance">4.5</span> km</div>
+                            <div>⏱️ Time: <span id="estimatedTime">15</span> mins</div>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="bookingLoader">
+                        <div class="spinner"></div>
+                        <p>🤖 Finding optimal EV driver using AI matching...</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="bookRide()" id="bookRideBtn">
+                        🚀 Book Smart EV Ride
+                    </button>
+
+                    <button class="btn btn-danger" onclick="cancelRide()" style="margin-top: 10px; display: none;" id="cancelRideBtn">
+                        ❌ Cancel Ride
+                    </button>
+                </div>
+
+                <!-- Stats and Drivers Section -->
+                <div class="card">
+                    <h3>📊 Real-time Platform Analytics</h3>
+                    <div id="statsContainer"></div>
+
+                    <h3 style="margin: 30px 0 20px 0;">🚗 Available EV Drivers</h3>
+                    <div id="driversList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRIVER SECTION -->
+        <div id="driverSection" class="section">
+            <div class="card">
+                <h2>👨‍✈️ Driver Performance Dashboard</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="driverRides">0</div>
+                        <div class="stat-label">Total Rides Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₹<span id="driverEarnings">0</span></div>
+                        <div class="stat-label">Total Earnings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="driverRating">4.5</div>
+                        <div class="stat-label">Average Rating ⭐</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 20px;">🔔 Ride Requests</h3>
+                <div id="pendingRidesList"></div>
+
+                <div id="activeRideDriver" style="display: none;">
+                    <h3 style="margin: 30px 0 20px 0;">🚗 Active Ride</h3>
+                    <div class="ride-item">
+                        <div class="ride-header">
+                            <div class="ride-id" id="activeRideId">RIDE_001</div>
+                            <span class="status-badge status-ongoing">In Progress</span>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 15px; color: #666; margin-bottom: 8px;">
+                                📍 Pickup: <span id="activePickup">Connaught Place</span>
+                            </div>
+                            <div style="font-size: 15px; color: #666; margin-bottom: 15px;">
+                                🏁 Drop: <span id="activeDrop">Karol Bagh</span>
+                            </div>
+                            <div style="font-size: 18px; font-weight: 700; color: #22c55e;">
+                                💰 Fare: ₹<span id="activeFare">78.50</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" onclick="completeRide()">
+                            ✅ Complete Ride
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN SECTION -->
+        <div id="adminSection" class="section">
+            <div class="card">
+                <h2>📊 Admin Analytics Dashboard <span class="ml-badge">AI INSIGHTS</span></h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRides">0</div>
+                        <div class="stat-label">Total Rides</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₹<span id="totalRevenue">0</span></div>
+                        <div class="stat-label">Platform Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeDrivers">0</div>
+                        <div class="stat-label">Active Drivers</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">📋 Ride Management</h3>
+                <div class="ride-list" id="allRidesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Configuration - Updated to match your FastAPI endpoints
+        const API_BASE = "http://localhost:8000";
+        let selectedVehicle = "sedan";
+        let currentRide = null;
+        let map, userMarker, driverMarker, routeLine, dropoffMarker;
+        let userWebSocket = null;
+        let rideInterval = null;
+
+        // Initialize the application
+        function init() {
+            initMap();
+            loadStats();
+            loadDrivers();
+            connectUserWebSocket();
+        }
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([28.6139, 77.209], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            userMarker = L.marker([28.6139, 77.209])
+                .addTo(map)
+                .bindPopup("🚩 Your Location")
+                .openPopup();
+        }
+
+        // Connect to WebSocket for real-time updates
+        function connectUserWebSocket() {
+            try {
+                const userId = `USER_${Date.now()}`;
+                userWebSocket = new WebSocket(`ws://localhost:8000/ws/user/${userId}`);
+                
+                userWebSocket.onopen = () => {
+                    console.log("✅ Connected to real-time updates");
+                };
+                
+                userWebSocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    console.log("Real-time update:", data);
+                    
+                    if (data.type === "ride_accepted") {
+                        showAlert("✅ Driver has accepted your ride! Tracking started.", "success");
+                        startRideTracking();
+                    }
+                };
+                
+                userWebSocket.onclose = () => {
+                    console.log("❌ WebSocket connection closed");
+                };
+            } catch (error) {
+                console.error("WebSocket connection failed:", error);
+            }
+        }
+
+        // Switch Tabs
+        function switchTab(tab) {
+            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            
+            document.getElementById(`${tab}Section`).classList.add("active");
+            event.target.classList.add("active");
+            
+            if (tab === "driver") loadDriverDashboard();
+            if (tab === "admin") loadAdminDashboard();
+        }
+
+        // Select Vehicle
+        function selectVehicle(vehicle) {
+            selectedVehicle = vehicle;
+            document.querySelectorAll(".vehicle-card").forEach(card => {
+                card.classList.remove("selected");
+            });
+            event.currentTarget.classList.add("selected");
+            updateFareEstimate();
+        }
+
+        // Update fare estimate
+        function updateFareEstimate() {
+            const rates = {
+                'sedan': 12,
+                'suv': 15,
+                'hatchback': 10,
+                'premium': 20
+            };
+            
+            const distance = parseFloat(document.getElementById('estimatedDistance').textContent);
+            const fare = (distance * rates[selectedVehicle]).toFixed(2);
+            
+            document.getElementById('fareAmount').textContent = fare;
+            document.getElementById('baseFare').textContent = (fare * 0.8).toFixed(2);
+        }
+
+        // Show Alert
+        function showAlert(message, type = "success") {
+            const alert = document.getElementById("alertBox");
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            setTimeout(() => alert.classList.remove("show"), 5000);
+        }
+
+        // Book Ride - Updated for your FastAPI
+        async function bookRide() {
+            const loader = document.getElementById("bookingLoader");
+            const bookBtn = document.getElementById("bookRideBtn");
+            const cancelBtn = document.getElementById("cancelRideBtn");
+            
+            loader.style.display = "flex";
+            bookBtn.disabled = true;
+            
+            try {
+                // Coordinates for Delhi locations
+                const pickupCoords = { latitude: 28.6139, longitude: 77.209 };
+                const dropoffCoords = { latitude: 28.65, longitude: 77.23 };
+                
+                const response = await fetch(`${API_BASE}/ride/request`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: `USER_${Date.now()}`,
+                        pickup: pickupCoords,
+                        dropoff: dropoffCoords,
+                        city: "Delhi",
+                        vehicle_type: selectedVehicle,
+                        user_type: "regular"
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.detail) {
+                    throw new Error(data.detail);
+                }
+                
+                currentRide = data;
+                
+                // Update UI with ML-powered fare breakdown
+                document.getElementById("fareAmount").textContent = data.estimated_fare.toFixed(2);
+                document.getElementById("baseFare").textContent = data.base_fare.toFixed(2);
+                document.getElementById("surgeMultiplier").textContent = data.surge_multiplier;
+                document.getElementById("demandFactor").textContent = data.demand_factor;
+                document.getElementById("estimatedDistance").textContent = data.estimated_distance.toFixed(1);
+                document.getElementById("estimatedTime").textContent = Math.round(data.estimated_time);
+                
+                showAlert(
+                    `✅ Ride booked! ${data.driver.name} is arriving. ` +
+                    `ML-estimated fare: ₹${data.estimated_fare.toFixed(2)}`, 
+                    "success"
+                );
+                
+                // Update map with optimized route
+                updateMapWithRide(pickupCoords, dropoffCoords, data.driver, data.optimized_route);
+                
+                // Show tracking UI
+                bookBtn.style.display = "none";
+                cancelBtn.style.display = "block";
+                document.getElementById("rideTracking").style.display = "block";
+                document.getElementById("trackingDriver").textContent = data.driver.name;
+                document.getElementById("trackingETA").textContent = `${Math.round(data.estimated_time)} mins`;
+                document.getElementById("trackingDistance").textContent = data.estimated_distance.toFixed(1);
+                
+                // Start tracking
+                startRideTracking();
+                
+                // Refresh data
+                loadStats();
+                loadDrivers();
+                
+            } catch (error) {
+                console.error("Error booking ride:", error);
+                showAlert(`❌ ${error.message}`, "error");
+            } finally {
+                loader.style.display = "none";
+                bookBtn.disabled = false;
+            }
+        }
+
+        // Cancel Ride
+        function cancelRide() {
+            if (currentRide) {
+                showAlert("Ride cancelled", "warning");
+                resetRideUI();
+                
+                if (rideInterval) {
+                    clearInterval(rideInterval);
+                    rideInterval = null;
+                }
+            }
+        }
+
+        // Reset ride UI
+        function resetRideUI() {
+            document.getElementById("bookRideBtn").style.display = "block";
+            document.getElementById("cancelRideBtn").style.display = "none";
+            document.getElementById("rideTracking").style.display = "none";
+            currentRide = null;
+            
+            // Clear map
+            if (driverMarker) map.removeLayer(driverMarker);
+            if (dropoffMarker) map.removeLayer(dropoffMarker);
+            if (routeLine) map.removeLayer(routeLine);
+            driverMarker = null;
+            dropoffMarker = null;
+            routeLine = null;
+        }
+
+        // Update map with ride details and optimized route
+        function updateMapWithRide(pickup, dropoff, driver, optimizedRoute) {
+            // Clear existing layers
+            if (routeLine) map.removeLayer(routeLine);
+            if (dropoffMarker) map.removeLayer(dropoffMarker);
+            
+            // Update pickup marker
+            userMarker.setLatLng([pickup.latitude, pickup.longitude]);
+            
+            // Add dropoff marker
+            dropoffMarker = L.marker([dropoff.latitude, dropoff.longitude])
+                .addTo(map)
+                .bindPopup("🏁 Destination");
+            
+            // Draw optimized route if available
+            const routePoints = optimizedRoute ? 
+                optimizedRoute.map(loc => [loc.latitude, loc.longitude]) :
+                [
+                    [pickup.latitude, pickup.longitude],
+                    [dropoff.latitude, dropoff.longitude]
+                ];
+            
+            routeLine = L.polyline(routePoints, {
+                color: '#10b981',
+                weight: 6,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map).bindPopup("🤖 AI-Optimized Route");
+            
+            // Add driver marker
+            updateDriverLocation(
+                driver.current_location.latitude, 
+                driver.current_location.longitude, 
+                driver.name
+            );
+            
+            // Fit map to show all points
+            const bounds = L.latLngBounds(routePoints);
+            map.fitBounds(bounds, { padding: [20, 20] });
+        }
+
+        // Update driver location
+        function updateDriverLocation(lat, lng, name = "Driver") {
+            if (driverMarker) {
+                driverMarker.setLatLng([lat, lng]);
+            } else {
+                driverMarker = L.marker([lat, lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+                        iconSize: [40, 40],
+                    })
+                }).addTo(map).bindPopup(`🚗 ${name}`);
+            }
+        }
+
+        // Start ride tracking simulation
+        function startRideTracking() {
+            let progress = 0;
+            const trackingProgress = document.getElementById("trackingProgress");
+            
+            if (rideInterval) clearInterval(rideInterval);
+            
+            rideInterval = setInterval(() => {
+                progress += 2;
+                if (progress > 100) {
+                    progress = 100;
+                    clearInterval(rideInterval);
+                    
+                    showAlert("🎉 Ride completed! Thank you for choosing EV Ride.", "success");
+                    resetRideUI();
+                    
+                    loadStats();
+                    loadDrivers();
+                }
+                
+                trackingProgress.style.width = `${progress}%`;
+                
+                // Simulate driver movement along route
+                if (driverMarker && currentRide) {
+                    const pickup = currentRide.pickup || { latitude: 28.6139, longitude: 77.209 };
+                    const dropoff = currentRide.dropoff || { latitude: 28.65, longitude: 77.23 };
+                    
+                    const progressRatio = progress / 100;
+                    const currentLat = pickup.latitude + (dropoff.latitude - pickup.latitude) * progressRatio;
+                    const currentLng = pickup.longitude + (dropoff.longitude - pickup.longitude) * progressRatio;
+                    
+                    updateDriverLocation(currentLat, currentLng, currentRide.driver?.name || "Driver");
+                }
+                
+            }, 500);
+        }
+
+        // Load Stats - Updated for your API
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/stats`);
+                const data = await response.json();
+                
+                const html = `
+                    <div style="padding: 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 16px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+                            <span style="color: #666; font-weight: 600;">Total Rides:</span>
+                            <strong style="color: var(--primary);">${data.total_rides}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+                            <span style="color: #666; font-weight: 600;">Completed:</span>
+                            <strong style="color: #22c55e;">${data.completed_rides}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+                            <span style="color: #666; font-weight: 600;">Available Drivers:</span>
+                            <strong style="color: #3b82f6;">${data.available_drivers}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666; font-weight: 600;">Avg Fare:</span>
+                            <strong style="color: #22c55e;">₹${data.average_fare.toFixed(2)}</strong>
+                        </div>
+                        ${data.models_loaded ? 
+                            '<div style="margin-top: 15px; padding: 10px; background: #22c55e; color: white; border-radius: 8px; text-align: center; font-weight: 600;">🤖 ML Models Active</div>' : 
+                            '<div style="margin-top: 15px; padding: 10px; background: #f59e0b; color: white; border-radius: 8px; text-align: center; font-weight: 600;">⚡ Basic Mode</div>'
+                        }
+                    </div>
+                `;
+                document.getElementById("statsContainer").innerHTML = html;
+            } catch (error) {
+                console.error("Error loading stats:", error);
+            }
+        }
+
+        // Load Drivers - Updated for your API
+        async function loadDrivers() {
+            try {
+                const response = await fetch(`${API_BASE}/drivers/available`);
+                const data = await response.json();
+                
+                const html = data.drivers ? data.drivers.map(driver => `
+                    <div class="driver-card">
+                        <div class="driver-avatar">${driver.name.charAt(0)}</div>
+                        <div class="driver-details">
+                            <div class="driver-name">${driver.name}</div>
+                            <div class="driver-vehicle">${driver.vehicle_type} • ${driver.ev_battery}% Battery</div>
+                            <div class="driver-meta">
+                                <span class="driver-rating">⭐ ${driver.driver_rating}</span>
+                                <span class="driver-battery">🔋 ${driver.ev_battery}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<p style="color: #666; text-align: center; padding: 30px;">No drivers available</p>';
+                
+                document.getElementById("driversList").innerHTML = html;
+            } catch (error) {
+                console.error("Error loading drivers:", error);
+            }
+        }
+
+        // Load Driver Dashboard
+        async function loadDriverDashboard() {
+            try {
+                // For demo, use first driver
+                const driverId = "D001";
+                const response = await fetch(`${API_BASE}/driver/stats/${driverId}`);
+                const data = await response.json();
+                
+                document.getElementById("driverRides").textContent = data.total_rides;
+                document.getElementById("driverEarnings").textContent = data.earnings.toFixed(2);
+                document.getElementById("driverRating").textContent = data.rating;
+                
+                loadPendingRides();
+                
+                if (currentRide) {
+                    document.getElementById("activeRideDriver").style.display = "block";
+                    document.getElementById("activeRideId").textContent = currentRide.ride_id;
+                    document.getElementById("activeFare").textContent = currentRide.estimated_fare.toFixed(2);
+                }
+            } catch (error) {
+                console.error("Error loading driver dashboard:", error);
+            }
+        }
+
+        // Load Pending Rides for Driver
+        async function loadPendingRides() {
+            let html = '';
+            
+            if (currentRide) {
+                html = `
+                    <div class="ride-item">
+                        <div class="ride-header">
+                            <div class="ride-id">${currentRide.ride_id}</div>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 15px; color: #666; margin-bottom: 8px;">
+                                📍 Pickup: Connaught Place
+                            </div>
+                            <div style="font-size: 15px; color: #666; margin-bottom: 15px;">
+                                🏁 Drop: Karol Bagh
+                            </div>
+                            <div style="font-size: 18px; font-weight: 700; color: #22c55e;">
+                                💰 ML Fare: ₹${currentRide.estimated_fare.toFixed(2)}
+                            </div>
+                        </div>
+                        <button class="btn btn-success" onclick="acceptRide()">
+                            ✅ Accept Ride
+                        </button>
+                    </div>
+                `;
+            } else {
+                html = '<p style="color: #666; text-align: center; padding: 30px;">No pending ride requests</p>';
+            }
+            
+            document.getElementById("pendingRidesList").innerHTML = html;
+        }
+
+        // Accept Ride (Driver)
+        async function acceptRide() {
+            if (!currentRide) {
+                showAlert("No ride to accept", "error");
+                return;
+            }
+            
+            try {
+                const response = await fetch(
+                    `${API_BASE}/ride/accept?ride_id=${currentRide.ride_id}&driver_id=${currentRide.driver.driver_id}`, 
+                    { method: "POST" }
+                );
+                
+                const data = await response.json();
+                
+                if (data.detail) {
+                    throw new Error(data.detail);
+                }
+                
+                showAlert("✅ Ride accepted! Navigation started.", "success");
+                
+                document.getElementById("activeRideDriver").style.display = "block";
+                document.getElementById("activeRideId").textContent = currentRide.ride_id;
+                document.getElementById("activeFare").textContent = currentRide.estimated_fare.toFixed(2);
+                
+                document.getElementById("pendingRidesList").innerHTML = 
+                    '<p style="color: #666; text-align: center; padding: 30px;">No pending ride requests</p>';
+                    
+            } catch (error) {
+                showAlert(`❌ ${error.message}`, "error");
+            }
+        }
+
+        // Complete Ride (Driver)
+        async function completeRide() {
+            if (!currentRide) return;
+            
+            try {
+                const response = await fetch(
+                    `${API_BASE}/ride/complete/${currentRide.ride_id}`, 
+                    { method: "POST" }
+                );
+                
+                const data = await response.json();
+                
+                if (data.detail) {
+                    throw new Error(data.detail);
+                }
+                
+                showAlert(`✅ Ride completed! Earnings: ₹${data.fare.toFixed(2)}`, "success");
+                
+                document.getElementById("activeRideDriver").style.display = "none";
+                currentRide = null;
+                
+                loadStats();
+                loadDrivers();
+                loadDriverDashboard();
+                
+            } catch (error) {
+                console.error("Error completing ride:", error);
+            }
+        }
+
+        // Load Admin Dashboard
+        async function loadAdminDashboard() {
+            try {
+                const statsResponse = await fetch(`${API_BASE}/admin/stats`);
+                const statsData = await statsResponse.json();
+                
+                document.getElementById("totalRides").textContent = statsData.total_rides;
+                document.getElementById("totalRevenue").textContent = (statsData.average_fare * statsData.completed_rides).toFixed(2);
+                document.getElementById("activeDrivers").textContent = statsData.available_drivers;
+                
+                // Mock rides list
+                const ridesHtml = `
+                    <div class="ride-item">
+                        <div class="ride-header">
+                            <div class="ride-id">RIDE_${Date.now().toString().slice(-6)}</div>
+                            <span class="status-badge status-completed">Completed</span>
+                        </div>
+                        <div style="font-size: 15px; color: #666;">
+                            👤 User: USER_${Math.random().toString(36).substr(2, 6).toUpperCase()} | 
+                            🚗 Driver: Rajesh Kumar<br>
+                            📏 Distance: 4.5 km | 💰 Fare: ₹78.50
+                        </div>
+                    </div>
+                    <div class="ride-item">
+                        <div class="ride-header">
+                            <div class="ride-id">RIDE_${Date.now().toString().slice(-6)}</div>
+                            <span class="status-badge status-ongoing">In Progress</span>
+                        </div>
+                        <div style="font-size: 15px; color: #666;">
+                            👤 User: USER_${Math.random().toString(36).substr(2, 6).toUpperCase()} | 
+                            🚗 Driver: Amit Singh<br>
+                            📏 Distance: 7.2 km | 💰 Fare: ₹108.00
+                        </div>
+                    </div>
+                `;
+                document.getElementById("allRidesList").innerHTML = ridesHtml;
+            } catch (error) {
+                console.error("Error loading admin dashboard:", error);
+            }
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

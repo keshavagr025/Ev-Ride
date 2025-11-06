@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ EV Ride - Book Your Green Ride</title>
+    <link href="style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo">⚡ EV Ride Platform</div>
+        <div class="nav-tabs">
+          <button class="tab-btn active" onclick="switchTab('user')">
+            🚗 User
+          </button>
+          <button class="tab-btn" onclick="switchTab('driver')">
+            👨‍✈️ Driver
+          </button>
+          <button class="tab-btn" onclick="switchTab('admin')">📊 Admin</button>
+        </div>
+      </div>
+
+      <!-- Alert Messages -->
+      <div id="alertBox" class="alert"></div>
+
+      <!-- USER SECTION -->
+      <div id="userSection" class="section active">
+        <div class="main-content">
+          <div class="card" style="margin-top: 25px">
+            <h3>🗺️ Live Map</h3>
+            <div
+              id="map"
+              style="height: 400px; border-radius: 10px; margin-top: 10px"
+            ></div>
+          </div>
+
+          <div class="card">
+            <h2 style="margin-bottom: 25px">📍 Book Your EV Ride</h2>
+
+            <div class="form-group">
+              <label>Pickup Location</label>
+              <input
+                type="text"
+                id="pickupAddress"
+                placeholder="Enter pickup location"
+                value="Connaught Place, Delhi"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Drop Location</label>
+              <input
+                type="text"
+                id="dropAddress"
+                placeholder="Enter drop location"
+                value="Karol Bagh, Delhi"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Select Vehicle Type</label>
+              <div class="vehicle-grid">
+                <div
+                  class="vehicle-card selected"
+                  onclick="selectVehicle('Sedan')"
+                >
+                  <div class="vehicle-icon">🚗</div>
+                  <div><strong>Sedan</strong></div>
+                  <div style="font-size: 12px; color: #666">₹12/km</div>
+                </div>
+                <div class="vehicle-card" onclick="selectVehicle('SUV')">
+                  <div class="vehicle-icon">🚙</div>
+                  <div><strong>SUV</strong></div>
+                  <div style="font-size: 12px; color: #666">₹15/km</div>
+                </div>
+                <div class="vehicle-card" onclick="selectVehicle('Compact')">
+                  <div class="vehicle-icon">🚕</div>
+                  <div><strong>Compact</strong></div>
+                  <div style="font-size: 12px; color: #666">₹10/km</div>
+                </div>
+                <div class="vehicle-card" onclick="selectVehicle('Premium')">
+                  <div class="vehicle-icon">🏎️</div>
+                  <div><strong>Premium</strong></div>
+                  <div style="font-size: 12px; color: #666">₹20/km</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="fare-display">
+              <div style="font-size: 14px; margin-bottom: 5px">
+                Estimated Fare
+              </div>
+              <div class="fare-amount">₹<span id="fareAmount">78.50</span></div>
+              <div style="font-size: 12px; margin-top: 10px; opacity: 0.9">
+                Distance: <span id="estimatedDistance">4.5</span> km | Time:
+                <span id="estimatedTime">15</span> mins
+              </div>
+            </div>
+
+            <div class="loading" id="bookingLoader">
+              <div class="spinner"></div>
+              <p>Finding driver...</p>
+            </div>
+
+            <button
+              class="btn btn-primary"
+              onclick="bookRide()"
+              style="margin-top: 20px"
+            >
+              🚀 Book Ride with ML
+            </button>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-bottom: 20px">📊 Platform Stats</h3>
+            <div id="statsContainer"></div>
+
+            <h3 style="margin: 25px 0 15px 0">🚗 Available Drivers</h3>
+            <div id="driversList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRIVER SECTION -->
+      <div id="driverSection" class="section">
+        <div class="card">
+          <h2 style="margin-bottom: 25px">👨‍✈️ Driver Dashboard</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="driverRides">0</div>
+              <div class="stat-label">Total Rides</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">₹<span id="driverEarnings">0</span></div>
+              <div class="stat-label">Earnings</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="driverRating">4.5</div>
+              <div class="stat-label">Rating ⭐</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 15px">🔔 Pending Rides</h3>
+          <div id="pendingRidesList"></div>
+        </div>
+      </div>
+
+      <!-- ADMIN SECTION -->
+      <div id="adminSection" class="section">
+        <div class="card">
+          <h2 style="margin-bottom: 25px">📊 Admin Dashboard</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="totalRides">0</div>
+              <div class="stat-label">Total Rides</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">₹<span id="totalRevenue">0</span></div>
+              <div class="stat-label">Total Revenue</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="activeDrivers">0</div>
+              <div class="stat-label">Active Drivers</div>
+            </div>
+          </div>
+
+          <h3 style="margin: 25px 0 15px 0">📋 All Rides</h3>
+          <div class="ride-list" id="allRidesList"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js" ></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
+     <script>
+    // 1️⃣ Initialize map
+    const map = L.map('map').setView([24.6, 77.3], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 2️⃣ Add driver marker initially
+    let driverMarker = L.marker([24.6, 77.3]).addTo(map);
+
+    // 3️⃣ WebSocket connection (paste here)
+    const driverId = "1234";  // (replace with real driver_id)
+    const ws = new WebSocket(`ws://localhost:8000/ws/driver/${driverId}`);
+
+    ws.onopen = () => {
+      console.log("✅ WebSocket connected for driver:", driverId);
+    };
+
+    ws.onmessage = (event) => {
+      const loc = JSON.parse(event.data);
+      console.log("📍 New location:", loc);
+      if (driverMarker) driverMarker.setLatLng([loc.latitude, loc.longitude]);
+    };
+
+    ws.onclose = () => {
+      console.log("❌ WebSocket closed");
+    };
+
+    // 4️⃣ (Optional) Simulation for testing
+    simulateDriverMovement([24.6, 77.3], [24.62, 77.35]);
+  </script>
+  </body>
+</html>
