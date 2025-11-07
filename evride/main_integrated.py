@@ -30,6 +30,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 @app.websocket("/ws/driver/{driver_id}")
 async def driver_updates(websocket: WebSocket, driver_id: str):
     await websocket.accept()
@@ -44,6 +46,8 @@ async def driver_updates(websocket: WebSocket, driver_id: str):
             await asyncio.sleep(2)
     except Exception:
         await websocket.close()
+
+
 
 
 # ==================== Data Models ====================
@@ -79,6 +83,8 @@ class RideResponse(BaseModel):
     estimated_time: float
     demand_factor: float
     optimized_route: List[Location]
+    
+    
 
 # ==================== Enhanced Model Manager ====================
 class EnhancedModelManager:
