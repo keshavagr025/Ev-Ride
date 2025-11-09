@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvRide - Your Electric Journey Begins</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #1a1a2e;
+        }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            overflow: hidden;
+        }
+
+        .animated-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .grid-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+            max-width: 900px;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 50%, #2d1b4e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 80px rgba(26, 26, 46, 0.5);
+            letter-spacing: 3px;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 30px rgba(26, 26, 46, 0.6));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 60px rgba(26, 26, 46, 0.9));
+                transform: scale(1.02);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #2d2d44;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 600;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.3s;
+        }
+
+        .tagline {
+            font-size: 1.8rem;
+            margin: 20px 0 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.6s;
+            font-weight: 300;
+            line-height: 1.6;
+            color: #2d2d44;
+        }
+
+        .tagline strong {
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 1s;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            color: #2d2d44;
+        }
+
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .feature:hover::before {
+            left: 100%;
+        }
+
+        .feature:hover {
+            transform: translateY(-15px) scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(96, 239, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(96, 239, 255, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(96, 239, 255, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover .feature-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .cta-section {
+            margin-top: 60px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 1.5s;
+        }
+
+        .ride-button {
+            padding: 22px 70px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #000;
+            background: linear-gradient(135deg, #60efff 0%, #0061ff 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 15px 50px rgba(96, 239, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ride-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .ride-button:hover::before {
+            left: 100%;
+        }
+
+        .ride-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 80px rgba(96, 239, 255, 0.6);
+            background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        }
+
+        .ride-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape1 {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #60efff, #0061ff);
+            border-radius: 50%;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #d084ff, #7e22ce);
+            border-radius: 30%;
+            top: 70%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        .shape3 {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0061ff, #d084ff);
+            border-radius: 50%;
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 6s;
+        }
+
+        .shape4 {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #60efff, #7e22ce);
+            border-radius: 40%;
+            top: 30%;
+            right: 20%;
+            animation-delay: 9s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, -60px) rotate(180deg); }
+            75% { transform: translate(-40px, -30px) rotate(270deg); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 70px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 2s;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(96, 239, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60efff 0%, #d084ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 2.5s;
+        }
+
+        .scroll-indicator::before {
+            content: '↓';
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .tagline {
+                font-size: 1.3rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .ride-button {
+                padding: 18px 50px;
+                font-size: 1.1rem;
+            }
+            
+            .stats {
+                gap: 30px;
+            }
+
+            .stat {
+                min-width: 120px;
+            }
+
+            .floating-shape {
+                opacity: 0.08;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="animated-bg"></div>
+        <div class="grid-overlay"></div>
+        
+        <div class="floating-elements">
+            <div class="floating-shape shape1"></div>
+            <div class="floating-shape shape2"></div>
+            <div class="floating-shape shape3"></div>
+            <div class="floating-shape shape4"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="logo-container">
+                <div class="subtitle">Welcome to the Future</div>
+                <h1 class="logo">⚡ EvRide</h1>
+            </div>
+            
+            <p class="tagline">
+                Experience <strong>Zero Emission</strong> rides with<br>
+                the most advanced EV booking platform
+            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">100% Eco-Friendly</div>
+                    <div class="feature-desc">Save planet, one ride at a time</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Lightning Fast</div>
+                    <div class="feature-desc">Book in under 30 seconds</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💎</div>
+                    <div class="feature-title">Premium Quality</div>
+                    <div class="feature-desc">Luxury electric vehicles</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-title">Safe & Secure</div>
+                    <div class="feature-desc">Verified drivers & insurance</div>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <button class="ride-button" onclick="startRiding()">
+                    Start Your Journey
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Happy Riders</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Cities</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Available</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">5.0★</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator"></div>
+    </div>
+
+    <script>
+        function startRiding() {
+            const hero = document.querySelector('.hero');
+            hero.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            hero.style.transform = 'scale(1.1)';
+            hero.style.opacity = '0';
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
+        }
+
+        // Parallax effect on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const shapes = document.querySelectorAll('.floating-shape');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 20;
+                const x = (mouseX - 0.5) * speed;
+                const y = (mouseY - 0.5) * speed;
+                shape.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
