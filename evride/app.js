@@ -1,4 +1,6 @@
-let map, pickupMarker, dropMarker, routeLine;
+// app.js - EV Ride Fare Predictor with Real-time Vehicle Pricing & Ride Simulation
+
+let map, pickupMarker, dropMarker, routeLine, movingVehicle;
 let selectedVehicle = "Sedan";
 let rideHistory = [];
 let dataset = [];
@@ -7,6 +9,24 @@ let modelData = {
   cityFactors: {},
   vehicleFactors: {},
   trafficFactors: {},
+};
+let rideInProgress = false;
+let rideAnimation;
+
+// Vehicle pricing with base rates
+const vehicleRates = {
+  'Sedan': 12,
+  'SUV': 15, 
+  'Hatchback': 10,
+  'Premium': 20
+};
+
+// Vehicle icons for simulation
+const vehicleIcons = {
+  'Sedan': '🚗',
+  'SUV': '🚙',
+  'Hatchback': '🚘',
+  'Premium': '🏎️'
 };
 
 // City-wise famous locations with coordinates
@@ -107,6 +127,47 @@ function initMap() {
 
   // Initialize location dropdowns
   updateLocationDropdowns();
+  
+  // Initialize vehicle cards with real-time pricing
+  initializeVehicleCards();
+}
+
+// Initialize vehicle cards with real-time pricing
+function initializeVehicleCards() {
+  const vehicleCards = document.querySelectorAll('.vehicle-card');
+  vehicleCards.forEach(card => {
+    const vehicleType = card.querySelector('strong').textContent;
+    const priceElement = card.querySelector('.vehicle-price');
+    
+    // Update price display initially
+    updateVehiclePriceDisplay(vehicleType, priceElement);
+  });
+}
+
+// Update vehicle price display based on current distance
+function updateVehiclePriceDisplay(vehicleType, priceElement) {
+  const rate = vehicleRates[vehicleType];
+  const distance = parseFloat(document.getElementById('routeDistance').textContent);
+  const totalPrice = distance * rate;
+  
+  if (distance > 0) {
+    priceElement.innerHTML = `
+      <div style="font-size: 0.8em; color: #059669;">₹${rate}/km</div>
+      <div style="font-size: 0.9em; font-weight: 700; color: #1f2937;">₹${Math.round(totalPrice)}</div>
+    `;
+  } else {
+    priceElement.innerHTML = `₹${rate}/km`;
+  }
+}
+
+// Update all vehicle card prices
+function updateAllVehiclePrices() {
+  const vehicleCards = document.querySelectorAll('.vehicle-card');
+  vehicleCards.forEach(card => {
+    const vehicleType = card.querySelector('strong').textContent;
+    const priceElement = card.querySelector('.vehicle-price');
+    updateVehiclePriceDisplay(vehicleType, priceElement);
+  });
 }
 
 // Update location dropdowns based on selected city
@@ -255,6 +316,7 @@ function updateMapRoute() {
   if (pickupMarker) map.removeLayer(pickupMarker);
   if (dropMarker) map.removeLayer(dropMarker);
   if (routeLine) map.removeLayer(routeLine);
+  if (movingVehicle) map.removeLayer(movingVehicle);
 
   // Get selected city and locations
   const city = document.getElementById("citySelect").value;
@@ -274,7 +336,7 @@ function updateMapRoute() {
     return;
   }
 
-  // Add markers
+  // Add pickup marker
   pickupMarker = L.marker(pickupCoords, {
     icon: L.divIcon({
       html: '<div style="background: #22c55e; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🚩 Pickup</div>',
@@ -283,6 +345,7 @@ function updateMapRoute() {
     }),
   }).addTo(map);
 
+  // Add drop marker
   dropMarker = L.marker(dropCoords, {
     icon: L.divIcon({
       html: '<div style="background: #ef4444; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🏁 Drop</div>',
@@ -296,6 +359,7 @@ function updateMapRoute() {
     color: "#667eea",
     weight: 4,
     opacity: 0.7,
+    dashArray: '5, 10'
   }).addTo(map);
 
   // Fit map to show both markers
@@ -308,8 +372,16 @@ function updateMapRoute() {
   document.getElementById("routeDistance").textContent = distance.toFixed(1);
   document.getElementById("routeDuration").textContent = duration;
 
+  // Update vehicle prices in real-time
+  updateAllVehiclePrices();
+
   // Hide fare section when location changes
   document.getElementById("fareSection").classList.add("hidden");
+  
+  // Reset ride in progress
+  if (rideInProgress) {
+    stopRideSimulation();
+  }
 }
 
 function calculateDistance(coord1, coord2) {
@@ -332,6 +404,10 @@ function selectVehicle(vehicle, element) {
     card.classList.remove("selected");
   });
   element.classList.add("selected");
+  
+  // Update the selected vehicle's price display
+  const priceElement = element.querySelector('.vehicle-price');
+  updateVehiclePriceDisplay(vehicle, priceElement);
 }
 
 function calculateFare() {
@@ -420,26 +496,171 @@ function bookRide() {
     fare: fare,
     distance: distance,
     duration: duration,
-    status: "Completed",
+    status: "In Progress",
     date: new Date().toLocaleString(),
     timestamp: Date.now(),
   };
 
   rideHistory.push(ride);
 
-  showAlert("🎉 Ride booked successfully! Ride ID: " + ride.id, "success");
+  showAlert("🎉 Ride booked successfully! Starting ride simulation...", "success");
+
+  // Start ride simulation
+  startRideSimulation(ride);
 
   // Update analytics
   updateAnalytics();
+}
 
-  // Reset after 2 seconds
+function startRideSimulation(ride) {
+  rideInProgress = true;
+  
+  // Get coordinates for pickup and drop
+  const city = document.getElementById("citySelect").value;
+  const pickupCoords = cityLocations[city][ride.pickup];
+  const dropCoords = cityLocations[city][ride.drop];
+  
+  if (!pickupCoords || !dropCoords) return;
+
+  // Create moving vehicle marker
+  const vehicleIcon = vehicleIcons[ride.vehicle] || '🚗';
+  movingVehicle = L.marker(pickupCoords, {
+    icon: L.divIcon({
+      html: `<div style="background: #3b82f6; color: white; padding: 10px 15px; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5); font-size: 1.2em; border: 3px solid white;">${vehicleIcon} Moving...</div>`,
+      className: "moving-vehicle",
+      iconSize: [100, 40],
+    }),
+    zIndexOffset: 1000
+  }).addTo(map);
+
+  // Update ride status in UI
+  const confirmButton = document.querySelector('.btn-primary');
+  confirmButton.innerHTML = '🔄 Ride in Progress...';
+  confirmButton.disabled = true;
+
+  // Add ride progress container
+  const progressContainer = document.createElement('div');
+  progressContainer.innerHTML = `
+    <div style="background: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
+      <h4 style="margin-bottom: 15px; color: #1f2937;">🚗 Ride in Progress</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div>
+          <div style="font-size: 0.85em; color: #666;">From</div>
+          <div style="font-weight: 600;">${ride.pickup}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.85em; color: #666;">To</div>
+          <div style="font-weight: 600;">${ride.drop}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.85em; color: #666;">Vehicle</div>
+          <div style="font-weight: 600;">${ride.vehicle}</div>
+        </div>
+      </div>
+      <div style="background: #f3f4f6; padding: 15px; border-radius: 10px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <span>Progress</span>
+          <span id="rideProgress">0%</span>
+        </div>
+        <div style="background: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden;">
+          <div id="progressBar" style="background: #10b981; height: 100%; width: 0%; transition: width 0.3s;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const fareSection = document.getElementById('fareSection');
+  fareSection.appendChild(progressContainer);
+
+  // Start animation
+  let progress = 0;
+  const totalSteps = 100;
+  const stepDuration = (ride.duration * 60 * 1000) / totalSteps; // Convert minutes to ms
+  
+  rideAnimation = setInterval(() => {
+    progress++;
+    const progressPercent = progress;
+    
+    // Update progress bar
+    document.getElementById('progressBar').style.width = progressPercent + '%';
+    document.getElementById('rideProgress').textContent = progressPercent + '%';
+    
+    // Calculate current position
+    const lat = pickupCoords[0] + (dropCoords[0] - pickupCoords[0]) * (progressPercent / 100);
+    const lng = pickupCoords[1] + (dropCoords[1] - pickupCoords[1]) * (progressPercent / 100);
+    
+    // Update vehicle position
+    movingVehicle.setLatLng([lat, lng]);
+    
+    if (progress >= 100) {
+      completeRide(ride, progressContainer);
+    }
+  }, stepDuration);
+}
+
+function completeRide(ride, progressContainer) {
+  clearInterval(rideAnimation);
+  rideInProgress = false;
+  
+  // Update ride status
+  ride.status = "Completed";
+  
+  // Remove moving vehicle
+  if (movingVehicle) {
+    map.removeLayer(movingVehicle);
+  }
+  
+  // Update UI
+  const confirmButton = document.querySelector('.btn-primary');
+  confirmButton.innerHTML = '✅ Ride Completed!';
+  
+  // Update progress container
+  progressContainer.innerHTML = `
+    <div style="background: #d1fae5; padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 4px solid #10b981;">
+      <h4 style="margin-bottom: 15px; color: #065f46;">✅ Ride Completed Successfully!</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+        <div>
+          <div style="font-size: 0.85em; color: #047857;">From</div>
+          <div style="font-weight: 600;">${ride.pickup}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.85em; color: #047857;">To</div>
+          <div style="font-weight: 600;">${ride.drop}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.85em; color: #047857;">Fare</div>
+          <div style="font-weight: 700; color: #065f46;">₹${ride.fare.toFixed(2)}</div>
+        </div>
+      </div>
+      <div style="margin-top: 15px; padding: 12px; background: #a7f3d0; border-radius: 8px; text-align: center;">
+        <strong>Thank you for choosing EV Ride! 🌱</strong>
+      </div>
+    </div>
+  `;
+  
+  showAlert("🎉 Ride completed successfully! Fare: ₹" + ride.fare.toFixed(2), "success");
+  
+  // Reset button after 3 seconds
   setTimeout(() => {
+    confirmButton.innerHTML = 'Confirm & Book Ride';
+    confirmButton.disabled = false;
     resetBooking();
-  }, 2000);
+  }, 3000);
+}
+
+function stopRideSimulation() {
+  if (rideAnimation) {
+    clearInterval(rideAnimation);
+  }
+  if (movingVehicle) {
+    map.removeLayer(movingVehicle);
+  }
+  rideInProgress = false;
 }
 
 function resetBooking() {
   document.getElementById("fareSection").classList.add("hidden");
+  stopRideSimulation();
 
   // Reset to first city and its locations
   document.getElementById("citySelect").value = "Delhi";
@@ -485,7 +706,7 @@ function displayRideHistory() {
                 <div class="ride-item">
                     <div class="ride-header">
                         <div class="ride-id">${ride.id}</div>
-                        <span class="status-badge status-completed">${
+                        <span class="status-badge ${ride.status === 'Completed' ? 'status-completed' : 'status-pending'}">${
                           ride.status
                         }</span>
                     </div>
