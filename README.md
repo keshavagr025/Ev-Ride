@@ -1,3 +1,14 @@
+🚗 Starting EV Ride Booking Platform...
+✅ Enhanced Fare model loaded
+✅ Label encoders loaded
+✅ Server ready!
+```
+
+### **Step 5: Test the API**
+
+**Option 1: Browser**
+```
+http://localhost:8000/docs
 EvRide
 
 EvRide is an Electric Ride Booking platform built using the MERN stack (MongoDB, Express, React, Node.js) with Google Maps integration + Machine Learning based Fare & Distance Optimization.

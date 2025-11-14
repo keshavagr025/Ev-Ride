@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>⚡ EV Ride Fare Predictor - ML Powered</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>EV Ride Platform</h1>
+                    <p>ML-Powered Fare Prediction <span class="ml-badge">AI POWERED</span></p>
+                </div>
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="switchTab('booking')">Book Ride</button>
+                    <button class="tab-btn" onclick="switchTab('history')">Ride History</button>
+                    <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Box -->
+        <div id="alertBox" class="alert"></div>
+
+        <div class="main-content">
+            <!-- Booking Section -->
+            <div id="bookingSection" class="section active">
+                <div class="grid-layout">
+                    <!-- Map Section -->
+                    <div class="card">
+                        <h3>🗺️ Live Tracking Map</h3>
+                        <div id="map"></div>
+                        <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.9em; color: #666;">📍 Route Distance</div>
+                                    <div style="font-size: 1.3em; font-weight: 700; color: #667eea;"><span id="routeDistance">0</span> km</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.9em; color: #666;"> Est. Duration</div>
+                                    <div style="font-size: 1.3em; font-weight: 700; color: #667eea;"><span id="routeDuration">0</span> min</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div class="card">
+                        <h3> Book Your EV Ride</h3>
+                        
+                        <div class="form-group">
+                            <label>🏙️ Select City</label>
+                            <select id="citySelect" onchange="updateLocationDropdowns()">
+                                <option value="Delhi">Delhi</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Pune">Pune</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pickup Location</label>
+                            <select id="pickupLocation" onchange="updateMapRoute()">
+                                <option value="">Select Pickup Location</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label> Drop Location</label>
+                            <select id="dropLocation" onchange="updateMapRoute()">
+                                <option value="">Select Drop Location</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label> Select Vehicle Type</label>
+                            <div class="vehicle-grid">
+                                <div class="vehicle-card selected" onclick="selectVehicle('Sedan', this)">
+                                    <div class="vehicle-icon"></div>
+                                    <div><strong>Sedan</strong></div>
+                                    <div class="vehicle-price" ><span id="routeDistance">0</span>km</div>
+                                </div>
+                                <div class="vehicle-card" onclick="selectVehicle('SUV', this)">
+                                    <div class="vehicle-icon"></div>
+                                    <div><strong>SUV</strong></div>
+                                    <div class="vehicle-price">₹15/km</div>
+                                </div>
+                                <div class="vehicle-card" onclick="selectVehicle('Hatchback', this)">
+                                    <div class="vehicle-icon"></div>
+                                    <div><strong>Compact</strong></div>
+                                    <div class="vehicle-price">₹10/km</div>
+                                </div>
+                                <div class="vehicle-card" onclick="selectVehicle('Premium', this)">
+                                    <div class="vehicle-icon">🏎️</div>
+                                    <div><strong>Premium</strong></div>
+                                    <div class="vehicle-price">₹20/km</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="calculateFare()"> Calculate Fare with ML</button>
+                    </div>
+                </div>
+
+                <!-- Fare Display -->
+                <div id="fareSection" class="hidden" style="margin-top: 25px;">
+                    <div class="fare-display">
+                        <div style="font-size: 1.2em; opacity: 0.9;"> ML Predicted Fare</div>
+                        <div class="fare-amount">₹<span id="predictedFare">0.00</span></div>
+                        
+                        <div class="fare-breakdown">
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Base Fare</div>
+                                <div class="breakdown-value">₹<span id="baseFare">0</span></div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Surge Factor</div>
+                                <div class="breakdown-value"><span id="surgeFactor">1.0</span>x</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">Demand</div>
+                                <div class="breakdown-value"><span id="demandFactor">1.0</span>x</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.3);">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; font-size: 0.95em;">
+                                <div>
+                                    <div style="opacity: 0.9;"> Distance</div>
+                                    <div style="font-weight: 700; font-size: 1.2em;"><span id="fareDistance">0</span> km</div>
+                                </div>
+                                <div>
+                                    <div style="opacity: 0.9;">Duration</div>
+                                    <div style="font-weight: 700; font-size: 1.2em;"><span id="fareDuration">0</span> min</div>
+                                </div>
+                                <div>
+                                    <div style="opacity: 0.9;">Per km</div>
+                                    <div style="font-weight: 700; font-size: 1.2em;">₹<span id="perKmRate">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="bookRide()"> Confirm & Book Ride</button>
+                    <button class="btn btn-secondary" onclick="resetBooking()"> Reset</button>
+                </div>
+            </div>
+
+            <!-- Ride History Section -->
+           <div id="historySection" class="section ride-history-section">
+    <div class="history-card">
+        <div class="history-title">
+            <span class="history-icon"></span>
+            <h3>Your Ride History</h3>
+        </div>
+        <div id="rideHistoryList" class="ride-list"></div>
+    </div>
+</div>
+
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="section">
+                <div class="card">
+                    <h3> Platform Analytics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalRidesCount">0</div>
+                            <div class="stat-label">Total Rides</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">₹<span id="totalRevenue">0</span></div>
+                            <div class="stat-label">Total Revenue</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value"><span id="avgFareAmount">0</span></div>
+                            <div class="stat-label">Avg Fare (₹)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value"><span id="avgDistanceKm">0</span></div>
+                            <div class="stat-label">Avg Distance (km)</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">Recent Rides</h3>
+                    <div id="analyticsRideList" class="ride-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
