@@ -4,106 +4,89 @@
 ✅ Server ready!
 ```
 
-### **Step 5: Test the API**
 
-**Option 1: Browser**
-```
-http://localhost:8000/docs
 EvRide
 
 EvRide is an Electric Ride Booking platform built using the MERN stack (MongoDB, Express, React, Node.js) with Google Maps integration + Machine Learning based Fare & Distance Optimization.
 This project provides users with an EV-focused ride booking experience for smart mobility with dynamic pricing.
 
-Features
+Features:
+1.User authentication and profile handling
+2.Google Maps powered ride tracking & navigation
+3.EV Ride booking & real-time ride status
+4. AI/ML Powered Fare Prediction (Random Forest)
+5.AI/ML Powered Distance Optimization
 
-User authentication and profile handling
+Machine Learning Used:
+1.Fare Prediction	Random Forest Regression	Predict dynamic & optimized EV Ride Fare
 
-Google Maps powered ride tracking & navigation
-
-EV Ride booking & real-time ride status
-
-AI/ML Powered Fare Prediction (Random Forest)
-
-AI/ML Powered Distance Optimization (Hybrid Random Forest + KNN)
-
-Tech Stack
-
-Frontend: React
-
-Backend: Node.js, Express
-
-Database: MongoDB
-
-Mapping API: Google Maps API
-
-ML Models: Python, Scikit-Learn
 
 Installation
-
 Clone the repository:
-
 git clone https://github.com/<your-account>/EvRide.git
 cd EvRide
 
+🛠️ Tech Stack
+Backend
+FastAPI (Python)
+Uvicorn
+CSV dataset processing
 
-Install dependencies:
+Frontend
+HTML5
+CSS3
+JavaScript (Vanilla JS)
+Leaflet.js
 
-# backend
-cd backend
-npm install
+Frontend Flow
+1.User enters pickup & drop location
+2.JavaScript → calls FastAPI using fetch()
+3.Backend → Calculates fare
+4.Results are shown on UI interface
 
-# frontend
-cd ../frontend
-npm install
+evride/
+│── __pycache__/
+│── credentials/               # API keys or auth related files (if any)
+│── frontend/                  # Additional UI files (if any)
+│── models/                    # ML model files, .pkl, etc.
+│── app.js                     # Frontend JavaScript logic
+│── app.txt
+│── dataset_integration.py     # CSV reading + dataset processing
+│── front.html                 # UI (Main front page)
+│── index.html                 # Homepage or ride summary page
+│── main_enhanced.py           # Main FastAPI server file (enhanced version)
+│── main_integrated.py         # FastAPI + model integrated version
+│── style.css                  # Styling for the website
+│── test_client.py             # API testing script
+│── your_ride_data.csv         # Dataset used for fare prediction / analysis
 
 
-Setup environment variables in backend/.env:
-
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 
 
 Run the project:
+1.Create Virtual Environment
+python -m venv venv
+source venv/bin/activate         # (Windows) venv\Scripts\activate
 
-# backend
-cd backend
-npm start
+2.Install Dependencies
+pip install fastapi uvicorn pandas numpy
 
-# frontend
-cd ../frontend
-npm start
+3.Run FastAPI Server
+uvicorn main_integrated:app --reload
+
+4.Open Frontend
+Simply open front.html or index.html in your browser or open by live server 
+
+API Endpoints
+1. Predict Fare
+POST /predict_fare
 
 
-Open browser & go to
-http://localhost:3000
 
-Machine Learning Used
-Task	Model Used	Purpose
-Fare Prediction	Random Forest Regression	Predict dynamic & optimized EV Ride Fare
-Distance Optimization	Hybrid Random Forest + KNN Model	Find shortest + efficient route for EV rides
-
-ML Models Folder Recommended:
-
-EvRide/
-├── ml-models/
-│   ├─ fare_random_forest.ipynb
-│   └─ distance_hybrid_rf_knn.ipynb
-
-Project Structure
-EvRide/
-├── backend/     
-├── frontend/    
-├── ml-models/   # ML Notebooks
-├── README.md    
-└── ...
-
-Contributing
-
+Contributing:
 Contributions are welcome!
 
 Fork Repo
-
 Create Feature Branch
 
 Submit PR
@@ -118,5 +101,6 @@ Minor Project - EvRide
 
 Team Members: Khushal Kumar Sahu + Keshav Agrawal  + Khushi Agrawal
 
-AI & MERN Based EV Ride Optimization Project
+AI & ML Based EV Ride Optimization Project
+
 
