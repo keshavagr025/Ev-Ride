@@ -243,7 +243,7 @@ function updateMapRoute() {
 
   pickupMarker = L.marker(pickupCoords, {
     icon: L.divIcon({
-      html: '<div style="background: #22c55e; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🚩 Pickup</div>',
+      html: '<div style="background: #22c55e; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="fa-solid fa-location-arrow"></i> Pickup</div>',
       className: "",
       iconSize: [80, 30],
     }),
@@ -251,7 +251,7 @@ function updateMapRoute() {
 
   dropMarker = L.marker(dropCoords, {
     icon: L.divIcon({
-      html: '<div style="background: #ef4444; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🏁 Drop</div>',
+      html: '<div style="background: #ef4444; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="fa-solid fa-map-location"></i> Drop</div>',
       className: "",
       iconSize: [80, 30],
     }),
@@ -452,13 +452,13 @@ function startRideSimulation(ride) {
   }).addTo(map);
 
   const confirmButton = document.querySelector('.btn-primary');
-  confirmButton.innerHTML = '🔄 Ride in Progress...';
+  confirmButton.innerHTML = '<i class="fa-solid fa-gears"></i> Ride in Progress...';
   confirmButton.disabled = true;
 
   const progressContainer = document.createElement('div');
   progressContainer.innerHTML = `
     <div style="background: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
-      <h4 style="margin-bottom: 15px; color: #1f2937;">🚗 Ride in Progress</h4>
+      <h4 style="margin-bottom: 15px; color: #1f2937;"><i class="fa-solid fa-motorcycle"></i> Ride in Progress</h4>
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
         <div>
           <div style="font-size: 0.85em; color: #666;">From</div>
@@ -532,11 +532,11 @@ async function completeRide(ride, progressContainer) {
   }
   
   const confirmButton = document.querySelector('.btn-primary');
-  confirmButton.innerHTML = '✅ Ride Completed!';
+  confirmButton.innerHTML = 'Ride Completed!';
   
   progressContainer.innerHTML = `
     <div style="background: #d1fae5; padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 4px solid #10b981;">
-      <h4 style="margin-bottom: 15px; color: #065f46;">✅ Ride Completed Successfully!</h4>
+      <h4 style="margin-bottom: 15px; color: #065f46;"> Ride Completed Successfully!</h4>
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
         <div>
           <div style="font-size: 0.85em; color: #047857;">From</div>
@@ -552,12 +552,12 @@ async function completeRide(ride, progressContainer) {
         </div>
       </div>
       <div style="margin-top: 15px; padding: 12px; background: #a7f3d0; border-radius: 8px; text-align: center;">
-        <strong>Thank you for choosing EV Ride! 🌱</strong>
+        <strong>Thank you for choosing EV Ride! </strong>
       </div>
     </div>
   `;
   
-  showAlert("🎉 Ride completed successfully! Fare: ₹" + ride.fare.toFixed(2), "success");
+  showAlert("<i class=\"fa-solid fa-check\"></i> Ride completed successfully! Fare: ₹" + ride.fare.toFixed(2), "success");
   
   setTimeout(() => {
     confirmButton.innerHTML = 'Confirm & Book Ride';
@@ -603,7 +603,7 @@ function displayRideHistory() {
   const analyticsList = document.getElementById("analyticsRideList");
 
   if (rideHistory.length === 0) {
-    historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="font-size: 3em; margin-bottom: 10px;">🚗</div><div>No rides yet. Book your first EV ride!</div></div>';
+    historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="font-size: 3em; margin-bottom: 10px;"><i class="fa-solid fa-motorcycle"></i></div><div>No rides yet. Book your first EV ride!</div></div>';
     analyticsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No ride data available</div>';
     return;
   }
@@ -616,10 +616,10 @@ function displayRideHistory() {
       </div>
       <div style="margin-bottom: 15px;">
         <div style="font-size: 0.95em; color: #666; margin-bottom: 8px;">
-          📍 <strong>Pickup:</strong> ${ride.pickup}
+          <i class="fa-solid fa-map-pin"></i> <strong>Pickup:</strong> ${ride.pickup}
         </div>
         <div style="font-size: 0.95em; color: #666; margin-bottom: 8px;">
-          🏁 <strong>Drop:</strong> ${ride.drop}
+          <i class="fa-solid fa-map-pin"></i> <strong>Drop:</strong> ${ride.drop}
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef;">
           <div>
@@ -636,7 +636,7 @@ function displayRideHistory() {
           </div>
         </div>
       </div>
-      <div style="font-size: 0.85em; color: #999;">🕐 ${ride.date}</div>
+      <div style="font-size: 0.85em; color: #999;"><i class="fa-regular fa-clock"></i> ${ride.date}</div>
     </div>
   `).join("");
 
