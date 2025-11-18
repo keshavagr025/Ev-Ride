@@ -478,6 +478,8 @@ async def request_ride(ride_request: RideRequest):
         optimized_route=optimized_route
     )
 
+
+
 @app.post("/ride/accept")
 async def accept_ride(ride_id: str, driver_id: str):
     """Driver accepts ride"""
@@ -496,6 +498,8 @@ async def accept_ride(ride_id: str, driver_id: str):
         "ride_id": ride_id,
         "fare": ride["fare"]
     }
+
+
 
 @app.post("/ride/complete/{ride_id}")
 async def complete_ride(ride_id: str):
@@ -516,6 +520,8 @@ async def complete_ride(ride_id: str):
         "fare": ride["fare"],
         "distance": ride["distance"]
     }
+    
+
 
 @app.get("/ride/{ride_id}")
 async def get_ride(ride_id: str):
@@ -523,6 +529,8 @@ async def get_ride(ride_id: str):
     if ride_id not in rides_db:
         raise HTTPException(status_code=404, detail="Ride not found")
     return rides_db[ride_id]
+
+
 
 @app.get("/drivers/available")
 async def get_available_drivers():
