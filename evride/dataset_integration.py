@@ -1,6 +1,3 @@
-# EV Ride Dataset Integration & ML Training Module
-# Optimized for real-world ride data (your_ride_data.csv)
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -80,7 +77,7 @@ class EVRideDatasetLoader:
             print("No missing values found!")
         
         # Remove outliers and invalid data
-        print(f"\n🧹 Removing outliers and invalid data...")
+        print(f"\n Removing outliers and invalid data...")
         initial_rows = len(self.df)
         
         # Remove invalid distances (realistic range: 0.5 to 200 km)
