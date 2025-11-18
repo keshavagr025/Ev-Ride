@@ -78,21 +78,21 @@ class EnhancedModelManager:
                 self.fare_model = fare_data['model']
                 self.fare_scaler = fare_data['scaler']
                 self.fare_features = fare_data['feature_columns']
-                print("✅ Enhanced Fare model loaded")
+                print(" Enhanced Fare model loaded")
             else:
-                print("⚠️ Fare model not found. Using default calculations.")
+                print(" Fare model not found. Using default calculations.")
                 
             if os.path.exists('models/label_encoders.pkl'):
                 self.label_encoders = joblib.load('models/label_encoders.pkl')
-                print("✅ Label encoders loaded")
+                print(" Label encoders loaded")
             else:
-                print("⚠️ Label encoders not found.")
+                print(" Label encoders not found.")
                 
             self.models_loaded = True
             return True
             
         except Exception as e:
-            print(f"❌ Error loading models: {e}")
+            print(f" Error loading models: {e}")
             return False
     
     def encode_categorical(self, value, category):
@@ -286,10 +286,10 @@ def find_nearest_driver(pickup: Location, available_drivers: list, vehicle_type:
 async def startup_event():
     """Load models on startup"""
     print("\n" + "="*60)
-    print("🚗 Starting EV Ride Booking Platform...")
+    print(" Starting EV Ride Booking Platform...")
     print("="*60)
     model_manager.load_models()
-    print("✅ Server ready!")
+    print(" Server ready!")
     print("="*60 + "\n")
 
 # ==================== API Endpoints ====================

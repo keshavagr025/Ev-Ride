@@ -24,39 +24,39 @@ class EVRideDatasetLoader:
     def load_data(self):
         """Load dataset from CSV file"""
         try:
-            print(f"📂 Loading dataset: {self.file_path}")
+            print(f" Loading dataset: {self.file_path}")
             self.df = pd.read_csv(self.file_path, encoding='utf-8')
             
-            print(f"✅ Dataset loaded successfully!")
-            print(f"📊 Shape: {self.df.shape[0]} rows × {self.df.shape[1]} columns")
-            print(f"📋 Columns: {list(self.df.columns)}")
-            print(f"💾 Memory usage: {self.df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+            print(f" Dataset loaded successfully!")
+            print(f" Shape: {self.df.shape[0]} rows × {self.df.shape[1]} columns")
+            print(f" Columns: {list(self.df.columns)}")
+            print(f" Memory usage: {self.df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
             
             return self.df
             
         except FileNotFoundError:
-            print(f"❌ File not found: {self.file_path}")
-            print("💡 Make sure 'your_ride_data.csv' is in the same directory")
+            print(f" File not found: {self.file_path}")
+            print(" Make sure 'your_ride_data.csv' is in the same directory")
             return None
         except Exception as e:
-            print(f"❌ Error loading dataset: {e}")
+            print(f" Error loading dataset: {e}")
             return None
     
     def preprocess_data(self):
         """Preprocess and clean data for real-world scenarios"""
         if self.df is None:
-            print("❌ No dataset loaded. Call load_data() first.")
+            print(" No dataset loaded. Call load_data() first.")
             return None
         
         print("\n" + "="*70)
-        print("🧹 DATA PREPROCESSING & CLEANING")
+        print("DATA PREPROCESSING & CLEANING")
         print("="*70)
         
         # Convert column names to lowercase and remove whitespace
         self.df.columns = self.df.columns.str.lower().str.strip()
         
         # Handle missing values
-        print(f"\n📊 Checking for missing values...")
+        print(f"\n Checking for missing values...")
         missing = self.df.isnull().sum()
         if missing.sum() > 0:
             print("⚠  Missing values found:")
@@ -75,9 +75,9 @@ class EVRideDatasetLoader:
                 if self.df[col].isnull().any():
                     self.df[col].fillna(self.df[col].mode()[0], inplace=True)
             
-            print("✅ Missing values handled!")
+            print("Missing values handled!")
         else:
-            print("✅ No missing values found!")
+            print("No missing values found!")
         
         # Remove outliers and invalid data
         print(f"\n🧹 Removing outliers and invalid data...")
@@ -104,8 +104,8 @@ class EVRideDatasetLoader:
             self.df = self.df[(self.df['driver_rating'] >= 1) & (self.df['driver_rating'] <= 5)]
         
         removed = initial_rows - len(self.df)
-        print(f"   ⚠  Removed {removed} outlier rows ({removed/initial_rows*100:.2f}%)")
-        print(f"   ✅ Clean dataset: {self.df.shape[0]} rows × {self.df.shape[1]} columns")
+        print(f"    Removed {removed} outlier rows ({removed/initial_rows*100:.2f}%)")
+        print(f"    Clean dataset: {self.df.shape[0]} rows × {self.df.shape[1]} columns")
         
         return self.df
     
@@ -115,7 +115,7 @@ class EVRideDatasetLoader:
             return None
         
         print("\n" + "="*70)
-        print("🔢 ENCODING CATEGORICAL FEATURES")
+        print(" ENCODING CATEGORICAL FEATURES")
         print("="*70)
         
         categorical_cols = ['city', 'traffic_level', 'vehicle_type', 
@@ -127,7 +127,7 @@ class EVRideDatasetLoader:
                 self.df[f'{col}_encoded'] = le.fit_transform(self.df[col].astype(str))
                 self.label_encoders[col] = le
                 unique_values = len(le.classes_)
-                print(f"   ✅ {col}: {unique_values} categories → {list(le.classes_[:3])}{'...' if unique_values > 3 else ''}")
+                print(f"    {col}: {unique_values} categories → {list(le.classes_[:3])}{'...' if unique_values > 3 else ''}")
         
         # Handle day_of_week if it's text
         if 'day_of_week' in self.df.columns:
@@ -138,7 +138,7 @@ class EVRideDatasetLoader:
                     'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6
                 }
                 self.df['day_of_week'] = self.df['day_of_week'].map(day_mapping).fillna(0)
-                print(f"   ✅ day_of_week: Converted to numeric (0-6)")
+                print(f"    day_of_week: Converted to numeric (0-6)")
         
         return self.df
     
@@ -148,17 +148,17 @@ class EVRideDatasetLoader:
             return None
         
         print("\n" + "="*70)
-        print("📊 DATASET SUMMARY & STATISTICS")
+        print(" DATASET SUMMARY & STATISTICS")
         print("="*70)
         print(f"Total Records: {len(self.df):,}")
         print(f"Time Period: {self.df.index[0]} to {self.df.index[-1]}")
         
-        print(f"\n📈 NUMERICAL FEATURES STATISTICS:")
+        print(f"\n NUMERICAL FEATURES STATISTICS:")
         print("-" * 70)
         numerical_stats = self.df.describe()
         print(numerical_stats.to_string())
         
-        print(f"\n📋 CATEGORICAL FEATURES DISTRIBUTION:")
+        print(f"\n CATEGORICAL FEATURES DISTRIBUTION:")
         print("-" * 70)
         cat_cols = ['city', 'vehicle_type', 'time_of_day', 'weather_condition', 'user_type']
         for col in cat_cols:
@@ -169,7 +169,7 @@ class EVRideDatasetLoader:
                     percentage = (count / len(self.df)) * 100
                     print(f"   {value}: {count:,} ({percentage:.1f}%)")
         
-        print(f"\n💰 FARE ANALYSIS:")
+        print(f"\n FARE ANALYSIS:")
         print("-" * 70)
         if 'fare_amount_inr' in self.df.columns:
             print(f"   Average Fare:    ₹{self.df['fare_amount_inr'].mean():.2f}")
@@ -178,7 +178,7 @@ class EVRideDatasetLoader:
             print(f"   Max Fare:        ₹{self.df['fare_amount_inr'].max():.2f}")
             print(f"   Std Deviation:   ₹{self.df['fare_amount_inr'].std():.2f}")
         
-        print(f"\n🚗 RIDE ANALYSIS:")
+        print(f"\n RIDE ANALYSIS:")
         print("-" * 70)
         if 'distance_km' in self.df.columns:
             print(f"   Average Distance: {self.df['distance_km'].mean():.2f} km")
@@ -239,7 +239,7 @@ class EnhancedFarePredictor:
         available_features = [col for col in feature_cols if col in df.columns]
         
         if len(available_features) < 3:
-            print(f"❌ Insufficient features. Found: {available_features}")
+            print(f"Insufficient features. Found: {available_features}")
             return None, None
         
         self.feature_columns = available_features
@@ -261,7 +261,7 @@ class EnhancedFarePredictor:
     def train(self, df, test_size=0.2):
         """Train the ML model with progress tracking"""
         print("\n" + "="*70)
-        print("🚀 TRAINING ENHANCED FARE PREDICTION MODEL")
+        print(" TRAINING ENHANCED FARE PREDICTION MODEL")
         print("="*70)
         
         X, y = self.prepare_features(df)
@@ -274,23 +274,23 @@ class EnhancedFarePredictor:
             X, y, test_size=test_size, random_state=42, shuffle=True
         )
         
-        print(f"\n📊 Training Configuration:")
+        print(f"\n Training Configuration:")
         print(f"   Training samples:   {len(X_train):,}")
         print(f"   Testing samples:    {len(X_test):,}")
         print(f"   Features used:      {len(self.feature_columns)}")
         print(f"   Test split:         {test_size*100:.0f}%")
         
         # Scale features
-        print(f"\n⚙  Scaling features...")
+        print(f"\n Scaling features...")
         X_train_scaled = self.scaler.fit_transform(X_train)
         X_test_scaled = self.scaler.transform(X_test)
         
         # Train model
-        print(f"🔄 Training Random Forest (200 trees)...")
+        print(f" Training Random Forest (200 trees)...")
         print(f"   This may take 30-60 seconds...")
         self.model.fit(X_train_scaled, y_train)
         self.is_fitted = True
-        print(f"✅ Model training completed!")
+        print(f" Model training completed!")
         
         # Evaluate
         train_pred = self.model.predict(X_train_scaled)
@@ -304,28 +304,28 @@ class EnhancedFarePredictor:
         test_r2 = r2_score(y_test, test_pred)
         
         print(f"\n" + "="*70)
-        print("📊 MODEL PERFORMANCE METRICS")
+        print(" MODEL PERFORMANCE METRICS")
         print("="*70)
         
-        print(f"\n🎯 TRAINING SET PERFORMANCE:")
+        print(f"\n TRAINING SET PERFORMANCE:")
         print(f"   Mean Absolute Error (MAE):  ₹{train_mae:.2f}")
         print(f"   Root Mean Squared Error:    ₹{train_rmse:.2f}")
         print(f"   R² Score:                   {train_r2:.4f} ({train_r2*100:.2f}%)")
         
-        print(f"\n🎯 TESTING SET PERFORMANCE:")
+        print(f"\n TESTING SET PERFORMANCE:")
         print(f"   Mean Absolute Error (MAE):  ₹{test_mae:.2f}")
         print(f"   Root Mean Squared Error:    ₹{test_rmse:.2f}")
         print(f"   R² Score:                   {test_r2:.4f} ({test_r2*100:.2f}%)")
         
         # Overfitting check
         overfit_score = (train_r2 - test_r2) / train_r2 * 100
-        print(f"\n🔍 Overfitting Check:")
+        print(f"\n Overfitting Check:")
         if overfit_score < 10:
-            print(f"   ✅ Model is well-balanced ({overfit_score:.2f}% difference)")
+            print(f"    Model is well-balanced ({overfit_score:.2f}% difference)")
         elif overfit_score < 20:
-            print(f"   ⚠  Slight overfitting detected ({overfit_score:.2f}% difference)")
+            print(f"     Slight overfitting detected ({overfit_score:.2f}% difference)")
         else:
-            print(f"   ❌ High overfitting detected ({overfit_score:.2f}% difference)")
+            print(f"    High overfitting detected ({overfit_score:.2f}% difference)")
         
         # Feature importance
         feature_importance = pd.DataFrame({
@@ -333,15 +333,15 @@ class EnhancedFarePredictor:
             'importance': self.model.feature_importances_
         }).sort_values('importance', ascending=False)
         
-        print(f"\n📈 TOP 10 MOST IMPORTANT FEATURES:")
+        print(f"\n TOP 10 MOST IMPORTANT FEATURES:")
         print("-" * 70)
         for idx, row in feature_importance.head(10).iterrows():
-            bar = '█' * int(row['importance'] * 50)
+            bar = '' * int(row['importance'] * 50)
             print(f"   {row['feature']:30s} {bar} {row['importance']:.4f}")
         
         # Prediction accuracy analysis
         errors = np.abs(test_pred - y_test)
-        print(f"\n🎯 PREDICTION ACCURACY ANALYSIS:")
+        print(f"\n PREDICTION ACCURACY ANALYSIS:")
         print("-" * 70)
         print(f"   Mean Error:           ₹{errors.mean():.2f}")
         print(f"   Median Error:         ₹{errors.median():.2f}")
@@ -354,7 +354,7 @@ class EnhancedFarePredictor:
     def predict(self, features_dict):
         """Predict fare for new ride"""
         if not self.is_fitted:
-            print("❌ Model not fitted. Train the model first.")
+            print(" Model not fitted. Train the model first.")
             return None
         
         features_array = np.array([[features_dict.get(col, 0) for col in self.feature_columns]])
@@ -374,7 +374,7 @@ class EnhancedFarePredictor:
         }
         joblib.dump(model_data, filename)
         file_size = os.path.getsize(filename) / 1024  # KB
-        print(f"✅ Model saved: {filename} ({file_size:.2f} KB)")
+        print(f" Model saved: {filename} ({file_size:.2f} KB)")
     
     def load_model(self, filename='models/fare_model_enhanced.pkl'):
         """Load trained model from disk"""
@@ -383,7 +383,7 @@ class EnhancedFarePredictor:
         self.scaler = model_data['scaler']
         self.feature_columns = model_data['feature_columns']
         self.is_fitted = model_data['is_fitted']
-        print(f"✅ Model loaded: {filename}")
+        print(f" Model loaded: {filename}")
         if 'training_date' in model_data:
             print(f"   Trained on: {model_data['training_date']}")
 
@@ -396,19 +396,19 @@ def train_models_from_dataset(dataset_path='your_ride_data.csv'):
     """Complete end-to-end training pipeline"""
     
     print("\n" + "="*70)
-    print("🚗 EV RIDE BOOKING - MACHINE LEARNING MODEL TRAINING")
+    print(" EV RIDE BOOKING - MACHINE LEARNING MODEL TRAINING")
     print("="*70)
-    print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"📂 Dataset: {dataset_path}")
+    print(f" Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f" Dataset: {dataset_path}")
     print("="*70)
     
     # Step 1: Load Dataset
-    print("\n[STEP 1/5] 📥 LOADING DATASET...")
+    print("\n[STEP 1/5]  LOADING DATASET...")
     loader = EVRideDatasetLoader(dataset_path)
     df = loader.load_data()
     
     if df is None:
-        print("\n❌ TRAINING FAILED: Could not load dataset!")
+        print("\n TRAINING FAILED: Could not load dataset!")
         return None
     
     # Step 2: Preprocess
@@ -416,19 +416,19 @@ def train_models_from_dataset(dataset_path='your_ride_data.csv'):
     df = loader.preprocess_data()
     
     if df is None or len(df) == 0:
-        print("\n❌ TRAINING FAILED: No data after preprocessing!")
+        print("\n TRAINING FAILED: No data after preprocessing!")
         return None
     
     # Step 3: Encode Categorical
-    print("\n[STEP 3/5] 🔢 ENCODING CATEGORICAL FEATURES...")
+    print("\n[STEP 3/5]  ENCODING CATEGORICAL FEATURES...")
     df = loader.encode_categorical()
     
     # Step 4: Analyze Dataset
-    print("\n[STEP 4/5] 📊 ANALYZING DATASET...")
+    print("\n[STEP 4/5]  ANALYZING DATASET...")
     loader.get_summary()
     
     # Step 5: Train Model
-    print("\n[STEP 5/5] 🚀 TRAINING ML MODEL...")
+    print("\n[STEP 5/5]  TRAINING ML MODEL...")
     fare_predictor = EnhancedFarePredictor()
     success = fare_predictor.train(df, test_size=0.2)
     
@@ -438,22 +438,22 @@ def train_models_from_dataset(dataset_path='your_ride_data.csv'):
         
         # Save label encoders
         joblib.dump(loader.label_encoders, 'models/label_encoders.pkl')
-        print("✅ Label encoders saved: models/label_encoders.pkl")
+        print(" Label encoders saved: models/label_encoders.pkl")
         
         print("\n" + "="*70)
-        print("✅ MODEL TRAINING COMPLETED SUCCESSFULLY!")
+        print(" MODEL TRAINING COMPLETED SUCCESSFULLY!")
         print("="*70)
-        print("📦 Trained Files:")
+        print(" Trained Files:")
         print("   1. models/fare_model_enhanced.pkl")
         print("   2. models/label_encoders.pkl")
-        print("\n🚀 Next Steps:")
+        print("\n Next Steps:")
         print("   - Use this model in your FastAPI application")
         print("   - Run: uvicorn main_enhanced:app --reload")
         print("="*70)
         
         return fare_predictor, loader.label_encoders
     else:
-        print("\n❌ MODEL TRAINING FAILED!")
+        print("\n MODEL TRAINING FAILED!")
         return None
 
 
@@ -467,15 +467,15 @@ if _name_ == "_main_":
     os.makedirs('models', exist_ok=True)
     
     # Train with your_ride_data.csv
-    print("\n" + "🚀 "*35)
+    print("\n" + " "*35)
     print("STARTING EV RIDE ML TRAINING PIPELINE")
-    print("🚀 "*35)
+    print(" "*35)
     
     result = train_models_from_dataset('your_ride_data.csv')
     
     if result is None:
-        print("\n❌ TRAINING FAILED!")
-        print("\n💡 Troubleshooting Tips:")
+        print("\n TRAINING FAILED!")
+        print("\n Troubleshooting Tips:")
         print("   1. Ensure 'your_ride_data.csv' exists in the current directory")
         print("   2. Check if CSV has correct columns")
         print("   3. Verify CSV is not corrupted or empty")
@@ -487,7 +487,7 @@ if _name_ == "_main_":
     # Test prediction with real-world example
     if fare_model and fare_model.is_fitted:
         print("\n" + "="*70)
-        print("🧪 TESTING FARE PREDICTION WITH SAMPLE DATA")
+        print(" TESTING FARE PREDICTION WITH SAMPLE DATA")
         print("="*70)
         
         # Sample test scenario
@@ -517,27 +517,27 @@ if _name_ == "_main_":
         try:
             predicted_fare = fare_model.predict(test_features)
             
-            print(f"\n🎯 TEST SCENARIO:")
-            print(f"   📍 Distance:        {test_features['distance_km']} km")
-            print(f"   ⏱  Duration:        {test_features['duration_minutes']} minutes")
-            print(f"   🔋 Battery Health:  {test_features['battery_health_percent']}%")
-            print(f"   📈 Surge Factor:    {test_features['surge_multiplier']}x")
-            print(f"   🚦 Traffic Level:   High")
-            print(f"   ⭐ Driver Rating:   {test_features['driver_rating']}/5")
+            print(f"\n  TEST SCENARIO:")
+            print(f"    Distance:        {test_features['distance_km']} km")
+            print(f"    Duration:        {test_features['duration_minutes']} minutes")
+            print(f"    Battery Health:  {test_features['battery_health_percent']}%")
+            print(f"    Surge Factor:    {test_features['surge_multiplier']}x")
+            print(f"    Traffic Level:   High")
+            print(f"    Driver Rating:   {test_features['driver_rating']}/5")
             
-            print(f"\n💰 PREDICTED FARE: ₹{predicted_fare:.2f}")
+            print(f"\n PREDICTED FARE: ₹{predicted_fare:.2f}")
             print(f"   (Per km: ₹{predicted_fare/test_features['distance_km']:.2f})")
             
-            print("\n✅ MODEL IS READY FOR PRODUCTION!")
+            print("\n MODEL IS READY FOR PRODUCTION!")
             print("   Integration: FastAPI, Flask, or Django")
             
         except Exception as e:
-            print(f"\n⚠  Prediction test encountered an issue: {e}")
+            print(f"\n  Prediction test encountered an issue: {e}")
             print("   Model trained but test failed. Check feature compatibility.")
     
     print("\n" + "="*70)
-    print("🎉 TRAINING PIPELINE COMPLETED!")
+    print(" TRAINING PIPELINE COMPLETED!")
     print("="*70)
-    print(f"⏰ Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("\n📚 Ready to integrate with your EV booking system!")
+    print(f" Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("\n Ready to integrate with your EV booking system!")
     print("="*70)
