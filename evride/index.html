@@ -100,7 +100,7 @@
                                     <div class="vehicle-price">₹10/km</div>
                                 </div>
                                 <div class="vehicle-card" onclick="selectVehicle('Premium', this)">
-                                    <div class="vehicle-icon"><i class="fa-solid fa-motorcycle"></i></div>
+                                    <div class="vehicle-icon"><i class="fa-solid fa-car-rear"></i></div>
                                     <div><strong>Premium</strong></div>
                                     <div class="vehicle-price">₹20/km</div>
                                 </div>
@@ -159,7 +159,7 @@
            <div id="historySection" class="section ride-history-section">
     <div class="history-card">
         <div class="history-title">
-            <span class="history-icon"><i class="fa-solid fa-car-side"></i></span>
+            <span class="history-icon"></span>
             <h3>Your Ride History</h3>
         </div>
         <div id="rideHistoryList" class="ride-list"></div>
@@ -196,8 +196,8 @@
             </div>
         </div>
     </div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="js/mains.js"></script>
 </body>
 </html>
