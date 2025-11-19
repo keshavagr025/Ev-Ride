@@ -16,9 +16,6 @@ app = FastAPI(
     version="2.0"
 )
 
-
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 @app.websocket("/ws/driver/{driver_id}")
@@ -150,11 +146,7 @@ class EnhancedModelManager:
             elif 6 <= hour <= 8 or 10 <= hour <= 17 or 20 <= hour <= 22:
                 return "medium"
         return "low"
-    
-    def get_weather_condition(self):
-        """Get current weather (simplified)"""
-        # In production, integrate with weather API
-        return "clear"  # Default
+
     
     def calculate_demand_factor(self, hour, day_of_week, is_holiday):
         """Calculate demand factor"""
@@ -229,6 +221,8 @@ class EnhancedModelManager:
             fare = base + (ride_features['distance_km'] * per_km)
             fare *= ride_features.get('surge_multiplier', 1.0)
             return fare
+        
+    ## Find the nearest driver for our ride 
     
     def find_nearest_driver(self, pickup_lat, pickup_lon, available_drivers):
         """Find nearest driver - FIXED VERSION"""

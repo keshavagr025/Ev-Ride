@@ -1,5 +1,3 @@
-// fare.js - Fare calculation functions
-
 import { cityLocations, vehicleRates } from './config.js';
 import { requestRideFromBackend } from './backend.js';
 import { showAlert } from './ui.js';
@@ -20,7 +18,7 @@ export function selectVehicle(vehicle, element) {
   });
 }
 
-// Calculate Fare using Python ML Backend
+// Calculate Fare
 export async function calculateFare() {
   const pickupLocation = document.getElementById("pickupLocation").value;
   const dropLocation = document.getElementById("dropLocation").value;

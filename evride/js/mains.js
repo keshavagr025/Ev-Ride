@@ -1,5 +1,3 @@
-// main.js - Main application initialization and event listeners
-
 import { initMap, updateLocationDropdowns, updateMapRoute } from './map.js';
 import { initializeVehicleCards, switchTab } from './ui.js';
 import { checkBackendStatus } from './backend.js';
@@ -7,7 +5,7 @@ import { calculateFare, selectVehicle } from './fare.js';
 import { bookRide } from './ride.js';
 import { displayRideHistory, updateAnalytics } from './analytics.js';
 
-// Make functions globally accessible for HTML onclick handlers
+//globally accessible 
 window.selectVehicle = selectVehicle;
 window.calculateFare = calculateFare;
 window.bookRide = bookRide;

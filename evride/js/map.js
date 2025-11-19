@@ -1,5 +1,3 @@
-// map.js - All map related functions
-
 import { cityLocations, cityCenter } from './config.js';
 import { updateAllVehiclePrices } from './ui.js';
 import { stopRideSimulation } from './ride.js';

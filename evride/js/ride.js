@@ -1,5 +1,3 @@
-// ride.js - Ride booking and simulation
-
 import { cityLocations, vehicleIcons } from './config.js';
 import { map, movingVehicle, setRideInProgress } from './map.js';
 import { notifyRideCompletion } from './backend.js';
@@ -153,7 +151,7 @@ async function completeRide(ride, progressContainer, vehicleMarker) {
         </div>
       </div>
       <div style="margin-top: 15px; padding: 12px; background: #a7f3d0; border-radius: 8px; text-align: center;">
-        <strong>Thank you for choosing EV Ride! ⚡</strong>
+        <strong>Thank you for choosing EV Ride!</strong>
       </div>
     </div>
   `;
