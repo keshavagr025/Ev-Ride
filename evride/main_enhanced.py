@@ -1,6 +1,3 @@
-# FastAPI App with Enhanced EV Ride ML Models
-# CORS FIXED VERSION
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +15,6 @@ app = FastAPI(
     version="2.0"
 )
 
-# ============== CORS FIX - MUST BE BEFORE ANY ROUTES ==============
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
@@ -28,6 +24,7 @@ app.add_middleware(
 )
 
 # ==================== Data Models ====================
+
 class Location(BaseModel):
     latitude: float
     longitude: float
@@ -61,7 +58,8 @@ class RideResponse(BaseModel):
     demand_factor: float
     optimized_route: List[Location]
 
-# ==================== Enhanced Model Manager ====================
+#Enhanced Model Manager
+
 class EnhancedModelManager:
     def __init__(self):
         self.fare_model = None
@@ -192,10 +190,12 @@ class EnhancedModelManager:
             fare *= ride_features.get('surge_multiplier', 1.0)
             return fare
 
+
 # Initialize model manager
 model_manager = EnhancedModelManager()
 
-# ==================== In-Memory Storage ====================
+#In-Memory Storage
+
 rides_db = {}
 drivers_db = {}
 
@@ -224,7 +224,7 @@ for d in sample_drivers:
         driver_rating=d["rating"]
     )
 
-# ==================== Helper Functions ====================
+#Helper Functions 
 def calculate_distance(loc1: Location, loc2: Location) -> float:
     """Calculate distance between two locations"""
     return geodesic(
@@ -281,7 +281,7 @@ def find_nearest_driver(pickup: Location, available_drivers: list, vehicle_type:
     
     return best_driver, min_dist
 
-# ==================== Startup Event ====================
+# Startup Event
 @app.on_event("startup")
 async def startup_event():
     """Load models on startup"""
@@ -292,7 +292,7 @@ async def startup_event():
     print(" Server ready!")
     print("="*60 + "\n")
 
-# ==================== API Endpoints ====================
+# API Endpoints
 @app.get("/")
 def root():
     """Root endpoint - Check if API is running"""
@@ -470,4 +470,4 @@ async def get_stats():
         "average_distance": round(avg_distance, 2)
     }
 
-# Run with: uvicorn main_enhanced:app --reload --port 8000
+# uvicorn main_enhanced:app --reload --port 8000
