@@ -1,4 +1,3 @@
-# Enhanced Test Client for EV Ride Booking Platform
 import requests
 import json
 import time
@@ -6,9 +5,9 @@ import time
 BASE_URL = "http://localhost:8000"
 
 def print_section(title):
-    print("\n" + "="*70)
+    print("\n" + 70)
     print(f"  {title}")
-    print("="*70)
+    print(70)
 
 def test_enhanced_api():
     """Test all API endpoints with enhanced features"""

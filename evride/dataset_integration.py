@@ -385,9 +385,7 @@ class EnhancedFarePredictor:
             print(f"   Trained on: {model_data['training_date']}")
 
 
-# ==============================================
 # MAIN TRAINING PIPELINE
-# ==============================================
 
 def train_models_from_dataset(dataset_path='your_ride_data.csv'):
     """Complete end-to-end training pipeline"""
@@ -454,11 +452,11 @@ def train_models_from_dataset(dataset_path='your_ride_data.csv'):
         return None
 
 
-# ==============================================
-# RUN TRAINING
-# ==============================================
 
-if _name_ == "_main_":
+# RUN TRAINING
+
+if __name__ == "__main__":
+
     
     # Create models directory
     os.makedirs('models', exist_ok=True)

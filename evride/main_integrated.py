@@ -1,6 +1,3 @@
-# FastAPI App with Enhanced EV Ride ML Models
-# Optimized for your specific dataset features
-
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,7 +47,7 @@ async def driver_updates(websocket: WebSocket, driver_id: str):
 
 
 
-# ==================== Data Models ====================
+# Data Models
 class Location(BaseModel):
     latitude: float
     longitude: float
@@ -86,7 +83,7 @@ class RideResponse(BaseModel):
     
     
 
-# ==================== Enhanced Model Manager ====================
+# Enhanced Model Manager
 class EnhancedModelManager:
     def __init__(self):
         self.fare_model = None
@@ -261,7 +258,7 @@ class EnhancedModelManager:
 
 model_manager = EnhancedModelManager()
 
-# ==================== In-Memory Storage   
+# In-Memory Storage   
 
 rides_db = {}
 drivers_db = {}
@@ -292,8 +289,7 @@ for d in sample_drivers:
         driver_rating=d["rating"]
     )
 
-# ==================== Helper Functions ====================
-
+# Helper Functions 
 def calculate_distance(loc1: Location, loc2: Location) -> float:
     """Calculate distance between two locations"""
     return geodesic(
@@ -330,7 +326,7 @@ def is_holiday() -> bool:
     # In production, use holiday calendar API
     return False
 
-# ==================== Startup Event ====================
+# Startup Event
 
 @app.on_event("startup")
 async def startup_event():
@@ -342,7 +338,7 @@ async def startup_event():
     print("Server ready!")
     print("="*60 + "\n")
 
-# ==================== API Endpoints ====================
+#  API Endpoints
 
 @app.get("/")
 def root():
@@ -564,4 +560,4 @@ async def get_stats():
         "average_distance": round(avg_distance, 2)
     }
 
-# Run with: uvicorn main_enhanced:app --reload --port 8000
+# uvicorn main_enhanced:app --reload --port 8000

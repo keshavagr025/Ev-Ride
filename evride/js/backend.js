@@ -1,5 +1,3 @@
-// backend.js - All API related functions
-
 import { API_BASE_URL } from './config.js';
 import { showAlert } from './ui.js';
 
