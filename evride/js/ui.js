@@ -1,8 +1,6 @@
-// ui.js - All UI helper functions
-
 import { vehicleRates } from './config.js';
 
-// Show alert message
+// walert message
 export function showAlert(message, type) {
   const alertBox = document.getElementById("alertBox");
   alertBox.innerHTML = message;

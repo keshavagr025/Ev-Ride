@@ -217,7 +217,7 @@ def test_enhanced_api():
     print("   • Surge pricing adjusts based on demand and traffic")
     print("   • Driver matching considers vehicle type and battery")
     print("   • Route optimization provides waypoints")
-    print("\n" + "="*70 + "\n")
+    print("\n" + 70 + "\n")
 
 if __name__ == "__main__":
     try:

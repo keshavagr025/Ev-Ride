@@ -26,13 +26,12 @@ uvicorn main_enhanced:app --reload --port 8000
 
 **Server Output:**
 ```
-============================================================
-🚗 Starting EV Ride Booking Platform...
-============================================================
-✅ Enhanced Fare model loaded
-✅ Label encoders loaded
-✅ Server ready!
-============================================================
+
+Starting EV Ride Booking Platform...
+
+ Enhanced Fare model loaded
+ Label encoders loaded
+ Server ready!
 ```
 
 ### **Step 5: Test the API**
